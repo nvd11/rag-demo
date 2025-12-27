@@ -1,0 +1,15 @@
+gcp:
+  project: jason-hsbc
+  region: europe-west2
+
+
+deepseek:
+  api-key: "DEEPSEEK_API_KEY"
+  base-url: "https://api.deepseek.com"
+  
+database:
+  host: "34.39.2.90" # Connect to the cloud DB for local development
+  port: 5432
+  dbname: "default_db"
+  user: "nvd11"
+  password_env_var: "DB_PASSWORD"
