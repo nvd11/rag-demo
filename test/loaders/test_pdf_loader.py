@@ -47,6 +47,11 @@ class TestPDFLoader:
         # Load only the first page
         document = loader.load_file(PDF_PATH, pages=[1])
         
+        # Print content for debugging/verification
+        print("\n=== Page 1 Content ===")
+        print(document.page_content)
+        print("======================\n")
+        
         assert isinstance(document, Document)
         assert document.metadata['total_pages'] == 1
         assert document.metadata['pages_loaded'] == [1]
@@ -62,6 +67,26 @@ class TestPDFLoader:
         """Test supported extensions property."""
         assert ".pdf" in loader.supported_extensions
         assert len(loader.supported_extensions) == 1
+
+    def test_load_file_with_images(self, loader):
+        """Test loading file with image extraction enabled."""
+        if not os.path.exists(PDF_PATH):
+            pytest.skip(f"Test file not found: {PDF_PATH}")
+            
+        # Try loading with extract_images=True
+        # Test page 10 (index 9 in 0-based indexing if accessed directly, but pages=[10] requests page 10)
+        PAGE_NUM = 10
+        document = loader.load_file(PDF_PATH, extract_images=True, pages=[PAGE_NUM])
+        
+        assert isinstance(document, Document)
+        assert document.metadata['total_pages'] == 1
+        assert document.metadata['pages_loaded'] == [PAGE_NUM]
+        
+        # Verify we still get content
+        assert len(document.page_content) > 0
+        print(f"\n=== Page {PAGE_NUM} Content (Image Extraction Enabled) ===")
+        print(document.page_content)
+        print("================================================\n")
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
