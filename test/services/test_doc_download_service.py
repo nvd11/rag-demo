@@ -9,20 +9,20 @@ from pathlib import Path
 
 # Import dependencies
 from src.configs.config import project_path as config_project_path
-from src.services.doc_data_service import DocDataService
+from src.services.doc_download_service import DocDownloadService
 
 
-class TestDocDataServiceDownload:
-    """Test cases for DocDataService.download() method without mocking."""
+class TestDocDownloadServiceDownload:
+    """Test cases for DocDownloadService.download() method without mocking."""
     
     
     
     @pytest.fixture
     def doc_service(self):
-        """Create DocDataService instance with temporary directory."""
+        """Create DocDownloadService instance with temporary directory."""
         # Create unique temporary directory for each test
         temp_dir = tempfile.mkdtemp(prefix="test_docs_")
-        service = DocDataService()
+        service = DocDownloadService()
         yield service, temp_dir  # Return both service and temp directory
         
         # Cleanup temporary directory

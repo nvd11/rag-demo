@@ -10,7 +10,7 @@ from pydantic import BaseModel, computed_field
 from src.configs.config import project_path, yaml_configs
 
 
-class DocDataService(BaseModel):
+class DocDownloadService(BaseModel):
     """Pydantic-based service for managing document data operations."""
     
     @computed_field  # Pydantic decorator that creates a computed field

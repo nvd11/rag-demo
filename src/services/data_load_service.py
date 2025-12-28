@@ -1,11 +1,26 @@
-
 from pydantic import BaseModel
+from langchain_core.documents import Document
+from src.loaders.loader_factory import LoaderFactory
 
-class DocLoadService(BaseModel):
+class DataLoadService(BaseModel):
+    """Service for loading documents using appropriate loaders."""
 
-
-
-    def load(self, filepath:str)->Document:
+    def load(self, filepath: str) -> Document:
+        """
+        Load a document from the given file path.
         
+        Uses LoaderFactory to determine the appropriate loader based on file extension.
         
+        Args:
+            filepath: Path to the file to load
+            
+        Returns:
+            Document: The loaded document object
+        """
+        # get loader from the factory based on the file extension
+        loader = LoaderFactory.get_loader(filepath)
 
+        return loader.load(filepath)
+
+
+data_load_service = DataLoadService()
