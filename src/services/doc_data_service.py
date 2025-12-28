@@ -7,7 +7,7 @@ from urllib.request import urlopen
 from typing import Optional
 
 from pydantic import BaseModel, computed_field
-from src.configs.config import project_path
+from src.configs.config import project_path, yaml_configs
 
 
 class DocDataService(BaseModel):
@@ -30,7 +30,9 @@ class DocDataService(BaseModel):
         Performance Note: os.path.join() is lightweight, so recomputation 
         costs are minimal for this use case.
         """
-        target_path = os.path.join(project_path, "rag_docs")
+        rag_config = yaml_configs.get("rag", {})
+        docs_dir = rag_config.get("docs_dir", "rag_docs")
+        target_path = os.path.join(project_path, docs_dir)
         # Don't automatically create directory here - let download method handle it
         # self._ensure_directory_exists(target_path)
         return target_path
@@ -131,5 +133,3 @@ class DocDataService(BaseModel):
             raise IOError(f"Download failed: {e}") from e
         
         return str(target_file)
-
-
