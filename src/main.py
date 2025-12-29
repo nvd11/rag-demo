@@ -45,6 +45,13 @@ def main():
 
     document = data_load_service.load(file_path)
 
+    ## chunking 
+
+    ## embdeing
+
+    ## save to db
+
+    
     
 
 

@@ -11,6 +11,10 @@ proxy:
 deepseek:
   api-key: "DEEPSEEK_API_KEY"
   base-url: "https://api.deepseek.com"
+
+embedding:
+  provider: "google"
+  model: "models/text-embedding-004"
   
 database:
   host: "127.0.0.1" # Connect to the cloud sql proxy sidecar 
@@ -18,5 +22,3 @@ database:
   dbname: "rag_demo_dev"
   user: "rag_demo_user_dev"
   password_env_var: "DB_PASSWORD"
-
-
