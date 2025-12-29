@@ -57,7 +57,8 @@ async def test_astream_e2e(llm_service: LLMService):
     try:
         async for chunk in llm_service.astream(prompt):
             chunk_count += 1
-            collected_content += chunk.content
+            # Explicitly cast to str to handle potential list content in types
+            collected_content += str(chunk.content)
             # logger.debug(f"Chunk {chunk_count}: {chunk.content}")
     except Exception as e:
         pytest.fail(f"LLMService.astream() failed: {e}")

@@ -2,7 +2,7 @@ import src.configs.config
 from langchain_core.language_models import BaseChatModel
 from loguru import logger
 from typing import AsyncIterator
-from langchain_core.messages import BaseMessageChunk
+from langchain_core.messages import BaseMessageChunk, BaseMessage
 
 class LLMService:
     def __init__(self, llm: BaseChatModel):
@@ -18,14 +18,14 @@ class LLMService:
 
 
 
-    async def ainvoke(self, prompt: str) -> BaseMessageChunk:
+    async def ainvoke(self, prompt: str) -> BaseMessage:
         """Invokes the language model with a given prompt and returns the full response.
 
         Args:
             prompt (str): The input prompt to send to the language model.
 
         Returns:
-            BaseMessageChunk: The complete response object from the language model.
+            BaseMessage: The complete response object from the language model.
         """
         logger.info(f"LLMService ainvoking with prompt: {prompt}")
         response = await self.llm.ainvoke(prompt)
