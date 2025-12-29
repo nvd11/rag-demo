@@ -36,9 +36,9 @@ async def test_create_document_and_chunks(db_session):
     doc = await dao.create_document(file_path=file_path, title=title, creator_user_id=user_id)
     
     assert doc.id is not None
-    assert str(doc.file_path) == file_path
-    assert str(doc.title) == title
-    assert doc.creator_user_id == user_id # type: ignore
+    assert doc.file_path == file_path
+    assert doc.title == title
+    assert doc.creator_user_id == user_id
     
     print(f"Created doc: {doc.id}")
 
@@ -62,9 +62,9 @@ async def test_create_document_and_chunks(db_session):
     chunks = await dao.add_chunks(doc.id, chunks_data)
     
     assert len(chunks) == 2
-    assert chunks[0].document_id == doc.id # type: ignore
+    assert chunks[0].document_id == doc.id 
     assert chunks[0].content == "This is chunk 1 content."
-    assert chunks[0].chunk_index == 0 # type: ignore
+    assert chunks[0].chunk_index == 0 
     
     print(f"Added {len(chunks)} chunks.")
     
