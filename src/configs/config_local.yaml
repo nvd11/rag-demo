@@ -11,8 +11,8 @@ deepseek:
   base-url: "https://api.deepseek.com"
   
 database:
-  host: "34.39.2.90" # Connect to the cloud DB for local development
+  host: "127.0.0.1" # Connect to the Cloud SQL Auth Proxy sidecar
   port: 5432
-  dbname: "default_db"
-  user: "nvd11"
+  dbname: "rag_demo_dev"
+  user: "rag_demo_user_dev"
   password_env_var: "DB_PASSWORD"
