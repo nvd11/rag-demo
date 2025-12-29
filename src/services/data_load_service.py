@@ -5,7 +5,7 @@ from src.loaders.loader_factory import LoaderFactory
 class DataLoadService(BaseModel):
     """Service for loading documents using appropriate loaders."""
 
-    def load(self, filepath: str) -> Document:
+    def load(self, filepath: str) -> list[Document]:
         """
         Load a document from the given file path.
         
@@ -15,7 +15,7 @@ class DataLoadService(BaseModel):
             filepath: Path to the file to load
             
         Returns:
-            Document: The loaded document object
+            list[Document]: The loaded document objects
         """
         # get loader from the factory based on the file extension
         loader = LoaderFactory.get_loader(filepath)

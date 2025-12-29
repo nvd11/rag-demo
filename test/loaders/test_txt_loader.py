@@ -25,14 +25,17 @@ class TestTxtLoader:
             # Create a temporary robots.txt if it doesn't exist for test purposes
             with open(TXT_PATH, 'w') as f:
                 f.write("User-agent: *\nDisallow: /")
-            
-        document = loader.load_file(TXT_PATH)
-        
+    
+        documents = loader.load_file(TXT_PATH)
+    
         # Verify return type
+        assert isinstance(documents, list)
+        assert len(documents) > 0
+        document = documents[0]
         assert isinstance(document, Document)
         
         # Verify metadata
-        assert "robots.txt" in document.metadata['source']
+        assert document.metadata['source'] == TXT_PATH
         assert document.metadata['file_type'] == 'txt'
         assert document.metadata['file_size'] > 0
         assert document.metadata['encoding'] == 'utf-8'

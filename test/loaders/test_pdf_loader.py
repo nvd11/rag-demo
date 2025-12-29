@@ -24,9 +24,12 @@ class TestPDFLoader:
         if not os.path.exists(PDF_PATH):
             pytest.skip(f"Test file not found: {PDF_PATH}")
             
-        document = loader.load_file(PDF_PATH)
+        documents = loader.load_file(PDF_PATH)
         
         # Verify return type
+        assert isinstance(documents, list)
+        assert len(documents) > 0
+        document = documents[0]
         assert isinstance(document, Document)
         
         # Verify metadata
@@ -45,13 +48,16 @@ class TestPDFLoader:
             pytest.skip(f"Test file not found: {PDF_PATH}")
             
         # Load only the first page
-        document = loader.load_file(PDF_PATH, pages=[1])
+        documents = loader.load_file(PDF_PATH, pages=[1])
         
         # Print content for debugging/verification
         print("\n=== Page 1 Content ===")
-        print(document.page_content)
+        print(documents[0].page_content)
         print("======================\n")
         
+        assert isinstance(documents, list)
+        assert len(documents) > 0
+        document = documents[0]
         assert isinstance(document, Document)
         assert document.metadata['total_pages'] == 1
         assert document.metadata['pages_loaded'] == [1]
@@ -76,8 +82,11 @@ class TestPDFLoader:
         # Try loading with extract_images=True
         # Test page 10 (index 9 in 0-based indexing if accessed directly, but pages=[10] requests page 10)
         PAGE_NUM = 10
-        document = loader.load_file(PDF_PATH, extract_images=True, pages=[PAGE_NUM])
+        documents = loader.load_file(PDF_PATH, extract_images=True, pages=[PAGE_NUM])
         
+        assert isinstance(documents, list)
+        assert len(documents) > 0
+        document = documents[0]
         assert isinstance(document, Document)
         assert document.metadata['total_pages'] == 1
         assert document.metadata['pages_loaded'] == [PAGE_NUM]

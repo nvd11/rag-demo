@@ -28,7 +28,7 @@ class LoaderInterface(Protocol):
 class BaseLoader(ABC, Generic[T]):
     """Abstract base class for all data loaders."""
     
-    def load(self, source: str, **kwargs) -> T:
+    def load(self, source: str, **kwargs) -> list[T]:
         """
         Load and parse data from source with validation.
         
@@ -58,7 +58,7 @@ class BaseLoader(ABC, Generic[T]):
             raise
 
     @abstractmethod
-    def load_file(self, source: str, **kwargs) -> T:
+    def load_file(self, source: str, **kwargs) -> list[T]:
         """Load and parse data from source."""
         pass
 

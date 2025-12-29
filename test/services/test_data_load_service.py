@@ -15,8 +15,11 @@ class TestDocLoadService:
             
         try:
             service =data_load_service
-            document = service.load(tmp_path)
+            documents = service.load(tmp_path)
             
+            assert isinstance(documents, list)
+            assert len(documents) > 0
+            document = documents[0]
             assert isinstance(document, Document)
             assert document.page_content == "Hello, World!"
             assert document.metadata['source'] == tmp_path

@@ -17,7 +17,7 @@ class PDFLoader(BaseLoader[Document]):
     def supported_extensions(self) -> list[str]:
         return ['.pdf']
     
-    def load_file(self, source: str, **kwargs) -> Document:
+    def load_file(self, source: str, **kwargs) -> list[Document]:
         """
         Load and parse PDF file content.
         
@@ -29,7 +29,7 @@ class PDFLoader(BaseLoader[Document]):
                 - password: str = None - Password for encrypted PDFs
         
         Returns:
-            Document: Loaded document with page content and metadata
+            list[Document]: Loaded documents (currently merged into one)
             
         Raises:
             ValidationError: If PDF processing fails
@@ -97,7 +97,8 @@ class PDFLoader(BaseLoader[Document]):
             if pages:
                 metadata['pages_loaded'] = pages
             
-            return Document(page_content=combined_content, metadata=metadata)
+            # Return as a list containing the single merged document
+            return [Document(page_content=combined_content, metadata=metadata)]
                 
         except Exception as e:
             error_msg = f"Failed to load PDF: {str(e)}"
@@ -196,5 +197,8 @@ class PDFLoader(BaseLoader[Document]):
         Returns:
             str: Extracted text content from all pages
         """
-        document = self.load(source)
-        return document.page_content
+        documents = self.load(source)
+        if not documents:
+            return ""
+        # Assuming we only have one document since we merged pages
+        return documents[0].page_content

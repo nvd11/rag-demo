@@ -14,7 +14,7 @@ class TxtLoader(BaseLoader[Document]):
     def supported_extensions(self) -> list[str]:
         return ['.txt']
     
-    def load_file(self, source: str, **kwargs) -> Document:
+    def load_file(self, source: str, **kwargs) -> list[Document]:
         """
         Load and parse plain text file content.
         
@@ -25,7 +25,7 @@ class TxtLoader(BaseLoader[Document]):
                 - errors: str = 'strict' - How to handle encoding errors
         
         Returns:
-            Document: Loaded document with file content and metadata
+            list[Document]: Loaded documents
             
         Raises:
             ValidationError: If file reading fails
@@ -53,7 +53,7 @@ class TxtLoader(BaseLoader[Document]):
                 'encoding': encoding
             }
             
-            return Document(page_content=content, metadata=metadata)
+            return [Document(page_content=content, metadata=metadata)]
                 
         except Exception as e:
             error_msg = f"Failed to load text file: {str(e)}"
@@ -75,5 +75,7 @@ class TxtLoader(BaseLoader[Document]):
         Returns:
             str: Extracted text content
         """
-        document = self.load_file(source)
-        return document.page_content
+        documents = self.load_file(source)
+        if not documents:
+            return ""
+        return documents[0].page_content

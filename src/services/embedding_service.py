@@ -3,10 +3,21 @@ from src.embeddings.embedding_factory import EmbeddingFactory
 from loguru import logger
 
 class EmbeddingService:
-    def __init__(self):
+    def __init__(self, provider: str | None = None, model: str | None = None):
+        """
+        Initialize EmbeddingService.
+        
+        Args:
+            provider: The embedding provider to use (e.g., "google"). 
+                      If None, reads from config or defaults to "google".
+            model: The model name to use. 
+                   If None, reads from config or defaults to "models/text-embedding-004".
+        """
         embedding_config = yaml_configs.get("embedding", {})
-        self.provider = embedding_config.get("provider", "google")
-        self.model = embedding_config.get("model", "models/text-embedding-004")
+        
+        # Priority: Constructor Args -> Config File -> Defaults
+        self.provider = provider or embedding_config.get("provider", "google")
+        self.model = model or embedding_config.get("model", "models/text-embedding-004")
         
         logger.info(f"Initializing EmbeddingService with provider: {self.provider}, model: {self.model}")
         
