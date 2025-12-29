@@ -13,7 +13,7 @@ deepseek:
   base-url: "https://api.deepseek.com"
   
 database:
-  host: "34.39.2.90" # Connect to the envoy proxy 
+  host: "127.0.0.1" # Connect to the cloud sql proxy sidecar 
   port: 5432
   dbname: "rag_demo_dev"
   user: "rag_demo_user_dev"

@@ -1,4 +1,5 @@
-import src.configs.config  
+import src.configs.config
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
@@ -10,12 +11,21 @@ import os
 # Get root_path from an environment variable. Defaults to "/python-template-app" if not set.
 root_path = os.getenv("ROOT_PATH", "/python-template-app")
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    from src.configs.db import verify_db_connection
+    await verify_db_connection()
+    yield
+    # Shutdown (cleanup can be added here if needed)
+
 # Initialize the FastAPI app
 app = FastAPI(
     title="python-template Streaming API",
     description="A simple API to demonstrate web app",
     version="1.0.0",
     root_path=root_path,
+    lifespan=lifespan,
 )
 
 # Add CORS middleware
@@ -29,7 +39,6 @@ app.add_middleware(
 
 # Include the routers
 # app.include_router(chat_router.router)
-
 
 @app.get("/")
 def read_root():

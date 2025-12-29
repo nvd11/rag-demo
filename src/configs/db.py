@@ -1,7 +1,9 @@
 import os
+import sys
 from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import declarative_base
+from sqlalchemy import text
 from loguru import logger
 
 from src.configs.config import yaml_configs
@@ -83,5 +85,30 @@ async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
             yield session
         finally:
             await session.close()
+
+
+async def verify_db_connection():
+    """
+    Verify database connection by attempting to connect and execute a simple query.
+    Logs the result and exits if connection fails.
+    """
+    engine = None
+    try:
+        logger.info("Verifying database connection...")
+        engine = get_async_engine()
+
+        # Test connection with a simple query
+        async with engine.connect() as conn:
+            await conn.execute(text("SELECT 1"))
+            logger.info("Database connection verified successfully.")
+            return True
+
+    except Exception as e:
+        logger.error(f"Database connection failed: {e}")
+        logger.error("Please check your database configuration and credentials.")
+        sys.exit(1)
+    finally:
+        if engine is not None:
+            await engine.dispose()
 
 logger.info("Database engine and session factory configured.")

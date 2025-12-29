@@ -67,3 +67,11 @@ if app_env == "local" and yaml_configs and "proxy" in yaml_configs:
         http_proxy=proxy_settings.get("http"),
         https_proxy=proxy_settings.get("https")
     )
+
+
+#=== verify db connection====
+# Database verification should be called explicitly in the application startup
+# Example usage in server.py:
+#   import asyncio
+#   from src.configs.db import verify_db_connection
+#   asyncio.run(verify_db_connection())
