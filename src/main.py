@@ -7,14 +7,14 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from src.configs.config import project_path
 from src.services.doc_download_service import DocDownloadService
-from src.services.data_load_service import DocLoadService
+from src.services.data_load_service import DataLoadService
 
 def main():
     """Main function to download VisionFive2 PDF document."""
     try:
         # Initialize document service
         doc_service = DocDownloadService()
-        data_load_service = DocLoadService()
+        data_load_service = DataLoadService()
         
         # Download the PDF document
         pdf_url = 'https://doc.rvspace.org/VisionFive2/PDF/VisionFive2_DS.pdf'
