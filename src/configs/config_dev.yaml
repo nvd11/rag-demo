@@ -15,6 +15,9 @@ deepseek:
 embedding:
   provider: "google"
   model: "models/text-embedding-004"
+
+retrieval:
+  similarity_threshold: 0.5
   
 database:
   host: "127.0.0.1" # Connect to the cloud sql proxy sidecar 
