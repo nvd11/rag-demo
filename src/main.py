@@ -37,7 +37,7 @@ async def main():
             print("Processing file...")
             async with AsyncSessionFactory() as session:
                 data_processing_service = DataProcessingService(session)
-                await data_processing_service.process_file(file_path)
+                await data_processing_service.process_file(file_path, creator_user_id = -1)
             print("File processed successfully.")
             
         else:
