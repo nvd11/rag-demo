@@ -35,8 +35,8 @@ CREATE TABLE IF NOT EXISTS document_chunks_gemini (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     
     -- Foreign Key linking to the documents table
-    -- ON DELETE CASCADE: If a document is deleted, all its chunks are automatically deleted.
-    document_id UUID NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
+    -- Hard foreign key removed as requested.
+    document_id UUID NOT NULL,
     
     -- The actual text content of the chunk
     content TEXT NOT NULL,

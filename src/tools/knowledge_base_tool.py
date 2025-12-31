@@ -14,16 +14,16 @@ def create_retrieval_tool(session: AsyncSession):
     retrieval_service = RetrievalService(session)
 
     @tool
-    async def search_datasheet(query: str) -> str:
+    async def search_knowledge_base(query: str, topic: Optional[str] = None) -> str:
         """
-        Search for information in the VisionFive 2 Datasheet/Knowledge Base.
-        Use this tool when you need technical details, specifications, or descriptions 
-        about the VisionFive 2 hardware.
+        Search for information in the Knowledge Base.
         
         Args:
             query: The search query (e.g., "CPU frequency", "Memory interface").
+            topic: (Optional) specific topic to search within (e.g., "VisionFive 2"). 
+                   If not provided, searches all documents.
         """
         # Call the service
-        return await retrieval_service.search_knowledge_base(query)
+        return await retrieval_service.search_knowledge_base(query, topic=topic)
 
-    return search_datasheet
+    return search_knowledge_base

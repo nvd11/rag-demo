@@ -13,6 +13,8 @@ async def db_session():
     Creates a new database session for testing.
     Rolls back the session after the test to ensure clean state.
     """
+    # Force creation of a new engine for the current event loop
+    get_async_engine.cache_clear()
     engine = get_async_engine()
     async_session = async_sessionmaker(engine, expire_on_commit=False)
     
@@ -78,3 +80,33 @@ async def test_search_similar_chunks(db_session):
     assert dist0 < dist1 # Target should be closer
 
     print("Search test passed!")
+
+@pytest.mark.asyncio
+async def test_search_with_document_filter(db_session):
+    dao = VectorDAO(db_session)
+    
+    # 1. Create 2 Documents
+    doc1 = await dao.create_document(file_path="doc1.pdf", title="Doc 1")
+    doc2 = await dao.create_document(file_path="doc2.pdf", title="Doc 2")
+    
+    # 2. Add identical chunks to both documents
+    # Both chunks are perfect matches for the query [1.0, 0...]
+    emb = [0.0] * 768
+    emb[0] = 1.0 
+    
+    await dao.add_chunks(doc1.id, [{"content": "Content from Doc 1", "embedding": emb, "chunk_index": 0}])
+    await dao.add_chunks(doc2.id, [{"content": "Content from Doc 2", "embedding": emb, "chunk_index": 0}])
+    
+    # 3. Search with Filter (Only Doc 2)
+    query_emb = [0.0] * 768
+    query_emb[0] = 1.0
+    
+    results = await dao.search_similar_chunks(query_emb, limit=5, document_ids=[doc2.id])
+    
+    # 4. Verify
+    assert len(results) == 1
+    chunk, _ = results[0]
+    assert chunk.content == "Content from Doc 2"
+    assert chunk.document_id == doc2.id
+    
+    print("Filter test passed!")

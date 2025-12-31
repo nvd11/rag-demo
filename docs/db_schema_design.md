@@ -6,9 +6,64 @@
 
 ## 2. ER 图（概念）
 
+```mermaid
+erDiagram
+    topics {
+        UUID id PK
+        VARCHAR name UK
+        TEXT description
+        INTEGER creator_user_id
+    }
+    documents {
+        UUID id PK
+        VARCHAR file_path
+        VARCHAR title
+        INTEGER creator_user_id
+    }
+    document_topics {
+        UUID topic_id PK, FK
+        UUID document_id PK, FK
+        INTEGER creator_user_id
+    }
+    document_chunks_gemini {
+        UUID id PK
+        UUID document_id FK
+        TEXT content
+        vector(768) embedding
+        INTEGER page_number
+        INTEGER chunk_index
+    }
+
+    topics ||--o{ document_topics : "has"
+    documents ||--o{ document_topics : "belongs to"
+    documents ||--o{ document_chunks_gemini : "contains"
 ```
-[documents] 1 ---- * [document_chunks_gemini]
-```
+
+*   **topics**: 知识主题分类。
+*   **documents**: 存储文档元数据。
+*   **document_topics**: 多对多关联表，将文档归类到不同主题。
+*   **document_chunks_gemini**: 存储具体的文本切片和向量数据。
+
+## 3. 表结构设计
+
+### 3.1 `topics`
+
+| 字段名 | 类型 | 必填 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `id` | `UUID` | 是 | 主键，默认自动生成 |
+| `name` | `VARCHAR(255)` | 是 | **唯一**，主题名称 (e.g., "VisionFive 2") |
+| `description` | `TEXT` | 否 | 主题描述 |
+| `created_at` | `TIMESTAMP` | 是 | 创建时间 |
+
+### 3.2 `document_topics`
+
+| 字段名 | 类型 | 必填 | 说明 |
+| :--- | :--- | :--- | :--- |
+| `topic_id` | `UUID` | 是 | **外键**，关联 `topics.id` |
+| `document_id` | `UUID` | 是 | **外键**，关联 `documents.id` |
+| Primary Key | | | (`topic_id`, `document_id`) |
+
+### 3.3 `documents` (原主表)
 
 *   **documents**: 存储文档层面的元数据（如文件名、上传者）。
 *   **document_chunks_gemini**: 存储具体的文本切片和向量数据，通过外键关联到 `documents` 表。

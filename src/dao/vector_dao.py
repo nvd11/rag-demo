@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from src.models.document_model import Document, DocumentChunkGemini
-from typing import List, Dict, Any, Sequence
+from typing import List, Dict, Any, Sequence, Optional
 import uuid
 from loguru import logger
 
@@ -62,7 +62,7 @@ class VectorDAO:
         result = await self.session.execute(select(Document).where(Document.id == document_id))
         return result.scalars().first()
 
-    async def search_similar_chunks(self, query_embedding: List[float], limit: int = 5) -> Sequence[tuple[DocumentChunkGemini, float]]:
+    async def search_similar_chunks(self, query_embedding: List[float], limit: int = 5, document_ids: Optional[List[uuid.UUID]] = None) -> Sequence[tuple[DocumentChunkGemini, float]]:
         """
         Searches for document chunks similar to the query embedding using Cosine Distance.
         Returns a list of tuples (chunk, distance).
@@ -70,6 +70,7 @@ class VectorDAO:
         SQL Equivalence:
         SELECT *, embedding <=> '[...]' as distance
         FROM document_chunks_gemini
+        [WHERE document_id IN (...)]
         ORDER BY distance
         LIMIT 5;
         
@@ -86,6 +87,9 @@ class VectorDAO:
             
             # Select both the chunk object and the distance value
             stmt = select(DocumentChunkGemini, distance_col).order_by(distance_col).limit(limit)
+            
+            if document_ids:
+                stmt = stmt.where(DocumentChunkGemini.document_id.in_(document_ids))
             
             result = await self.session.execute(stmt)
             # Result contains tuples of (DocumentChunkGemini, distance)
