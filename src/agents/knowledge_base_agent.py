@@ -112,8 +112,10 @@ class KnowledgeBaseAgent:
                         if stripped_line.startswith("[Source"):
                             # If we were already processing a source, save it
                             if current_source:
-                                # Show full content to verify retrieval quality
-                                sources.append(f"{current_source}\nContent: {' '.join(current_content)}") 
+                                # Show truncated content preview (50 chars) for user readability
+                                full_content = ' '.join(current_content)
+                                preview = full_content[:50].replace('\n', ' ') + "..." if len(full_content) > 50 else full_content
+                                sources.append(f"{current_source}\nContent: {preview}")
                             
                             # Start new source
                             current_source = stripped_line

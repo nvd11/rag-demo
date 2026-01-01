@@ -89,10 +89,21 @@ class RetrievalService:
             context_parts = []
             for i, (chunk, distance, status_tag) in enumerate(processed_chunks):
                 # Include page number if available
-                page_info = f" (Page {chunk.page_number})" if chunk.page_number else ""
+                page_info = f"Page: {chunk.page_number}" if chunk.page_number else ""
                 
-                # Construct Header: [Source 1] (Page 5) (Score: 0.1234) [LOW RELEVANCE > 0.5]
-                header = f"[Source {i+1}]{page_info} (Score: {distance:.4f}){status_tag}"
+                # Include other metadata
+                meta_dict = chunk.meta_data or {}
+                # Exclude page_number from general metadata display if it's already shown
+                meta_str = ", ".join([f"{k}={v}" for k, v in meta_dict.items() if k != 'page_number'])
+                
+                meta_display = []
+                if page_info: meta_display.append(page_info)
+                if meta_str: meta_display.append(meta_str)
+                
+                meta_full_str = f" ({', '.join(meta_display)})" if meta_display else ""
+                
+                # Construct Header: [Source 1] (Page: 5, source=...) (Score: 0.1234) [LOW RELEVANCE > 0.5]
+                header = f"[Source {i+1}]{meta_full_str} (Score: {distance:.4f}){status_tag}"
                 context_parts.append(f"{header}:\n{chunk.content}")
             
             formatted_context = "\n\n".join(context_parts)
