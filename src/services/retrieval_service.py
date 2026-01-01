@@ -2,18 +2,25 @@ from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.dao.vector_dao import VectorDAO
 from src.dao.topic_dao import TopicDAO
-from src.embeddings.google_embedding import GoogleEmbedding
+from src.embeddings.embedding_factory import EmbeddingFactory
 from src.configs.config import yaml_configs
 from loguru import logger
 from typing import Optional
 
 class RetrievalService:
-    def __init__(self, session: AsyncSession):
+    def __init__(self, session: AsyncSession, provider: Optional[str] = None, model: Optional[str] = None):
         self.vector_dao = VectorDAO(session)
         self.topic_dao = TopicDAO(session)
-        # Initialize embedding model
-        # Using the same model config as data ingestion: models/embedding-001
-        self.embedding_client = GoogleEmbedding("models/embedding-001").get_client()
+        
+        embedding_config = yaml_configs.get("embedding", {})
+        
+        # Priority: Constructor Args -> Config File -> Defaults
+        self.provider = provider or embedding_config.get("provider", "google")
+        self.model = model or embedding_config.get("model", "models/text-embedding-004")
+        
+        embedding_provider = EmbeddingFactory.get_embedding_provider(self.provider, self.model)
+        self.embedding_client = embedding_provider.get_client()
+        logger.info(f"Retrieval Service initialized with embedding model: {self.provider}/{self.model}")
         
         # Load Similarity Threshold from config, default to 0.5
         self.similarity_threshold = 0.5
@@ -44,6 +51,8 @@ class RetrievalService:
                 if not document_ids:
                     logger.warning(f"No documents found for topic '{topic}'.")
                     return f"No documents found for topic '{topic}'."
+            else:
+                logger.info("No topic provided. Performing global search across all documents.")
 
             # 3. Search DB
             logger.info("Searching database...")

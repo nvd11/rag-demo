@@ -12,8 +12,15 @@ class KnowledgeBaseAgent:
     A generic agent for querying a knowledge base.
     It encapsulates the LangChain agent graph and handles response formatting including source citation.
     """
+
+    DEFAULT_SYSTEM_PROMPT = (
+        "You are a helpful assistant. "
+        "You have access to a knowledge base. "
+        "When asked about technical details, use the 'search_knowledge_base' tool. "
+        "If the user specifies a topic in the question, pass it to the tool."
+    )
     
-    def __init__(self, session: AsyncSession, system_prompt: str = "You are a helpful assistant."):
+    def __init__(self, session: AsyncSession, system_prompt: str = DEFAULT_SYSTEM_PROMPT):
         self.session = session
         self.system_prompt = system_prompt
         self.agent_graph = self._build_agent()

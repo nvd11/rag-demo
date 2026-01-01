@@ -29,8 +29,12 @@ async def debug_distance():
     print("Initializing embedding service...")
     embedder = GoogleEmbedding("models/text-embedding-004").get_client()
     
-    query = "昉·星光 2的USB Type C 开始同时用于供电和数据传输吗？"
+    # Original, full user query
+    # query = "昉·星光 2的USB Type C 开始同时用于供电和数据传输吗？"
     
+    # LLM rephrased query (from agent logs)
+    query = "USB Type C供电和数据传输"
+
     # We found this chunk in previous steps (Chunk 16)
     target_text_snippet = "请勿将此端口同时复用于充电和数据传输"
     

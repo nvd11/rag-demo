@@ -18,17 +18,14 @@ async def run_agent_demo():
         print("🤖 Agent Demo: General Assistant")
         print("="*50 + "\n")
         
-        system_prompt_general = (
-            "You are a helpful assistant. "
-            "You have access to a knowledge base. "
-            "When asked about technical details, use the 'search_knowledge_base' tool. "
-            "If the user specifies a topic (e.g. 'VisionFive 2'), pass it to the tool."
-        )
-        
-        agent_general = KnowledgeBaseAgent(session, system_prompt=system_prompt_general)
+        # We rely on the default system prompt in KnowledgeBaseAgent.
+        # SCENARIO 1: We DO NOT pass a topic to `ask()`.
+        # The agent must rely on the LLM to detect the topic from the user's query 
+        # (e.g., "topic:开发板 ...") and pass it to the tool.
+        agent_general = KnowledgeBaseAgent(session)
         
         queries = [
-            "VisionFive 2 的 CPU 主频是多少？", # Should find it (topic='VisionFive 2' or inferred or global search)
+            "topic:开发板 ,VisionFive 2 的 CPU 主频是多少？", # Explicit topic instruction in query
             "叶丽法的胸围是多少？"             # Should be filtered out
         ]
         
@@ -41,21 +38,18 @@ async def run_agent_demo():
                 for s in result['sources']:
                     print(f"   - {s}")
 
-        # Scenario 2: Specialized Assistant (Topic Enforced via Prompt)
+        # Scenario 2: Specialized Assistant (Topic Enforced via Code)
         print("\n" + "="*50)
         print("🤖 Agent Demo: VisionFive 2 Specialist")
         print("="*50 + "\n")
         
-        # Note: We enforce the topic by passing it to the ask method, which injects a system instruction
-        system_prompt_specialized = (
-            "You are a specialist for VisionFive 2 hardware. "
-            "Do not answer questions unrelated to VisionFive 2."
-        )
-        
-        agent_specialized = KnowledgeBaseAgent(session, system_prompt=system_prompt_specialized)
+        # We use the SAME default agent configuration (KnowledgeBaseAgent).
+        # SCENARIO 2: We EXPLICITLY pass `topic="开发板"` to `ask()`.
+        # This injects a system instruction forcing the LLM to use this topic for tool calls.
+        agent_specialized = KnowledgeBaseAgent(session)
         
         queries_special = [
-            "昉·星光 2 是什么公司的产品？", # Context implies VisionFive 2 due to specialist persona
+            "昉·星光 2 是什么公司的产品？", # Context implies VisionFive 2 due to injected topic
             "Linux Kernel 的编译步骤？" # If we had Linux topic, it might search there, but we force '开发板'
         ]
         
