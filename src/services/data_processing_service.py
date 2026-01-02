@@ -3,21 +3,24 @@ from src.services.data_load_service import DataLoadService
 from src.services.chunking_service import ChunkingService
 from src.services.embedding_service import EmbeddingService
 from src.dao.vector_dao import VectorDAO
+from src.dao.topic_dao import TopicDAO
 from loguru import logger
 import os
 
 class DataProcessingService:
     def __init__(self, session: AsyncSession):
         self.vector_dao = VectorDAO(session)
+        self.topic_dao = TopicDAO(session)
         self.data_load_service = DataLoadService()
         self.chunking_service = ChunkingService()
         self.embedding_service = EmbeddingService()
 
-    async def process_file(self, file_path: str, creator_user_id: int | None = None):
+    async def process_file(self, file_path: str, topic_name: str, creator_user_id: int):
         """
         Loads, chunks, embeds, and saves a document.
+        Associates the document with the specified topic.
         """
-        logger.info(f"Starting processing for file: {file_path}")
+        logger.info(f"Starting processing for file: {file_path}, topic: {topic_name}")
         
         # 1. Load Document
         try:
@@ -57,15 +60,32 @@ class DataProcessingService:
              raise ValueError("Embedding generation failed to match chunk count.")
 
         # 4. Save to Database
-        # Create Parent Document Record
+        # 4.1 Ensure Topic exists
+        topic = await self.topic_dao.get_topic_by_name(topic_name)
+        if not topic:
+            logger.info(f"Topic '{topic_name}' not found, creating new one.")
+            topic = await self.topic_dao.create_topic(
+                name=topic_name, 
+                description=f"Auto-created topic for {topic_name}",
+                creator_user_id=creator_user_id
+            )
+        
+        # 4.2 Create Parent Document Record
         title = os.path.basename(file_path)
         db_document = await self.vector_dao.create_document(
             file_path=file_path,
             title=title,
             creator_user_id=creator_user_id
         )
+        
+        # 4.3 Associate Document with Topic
+        await self.topic_dao.add_document_to_topic(
+            topic_id=topic.id, 
+            document_id=db_document.id,
+            creator_user_id=creator_user_id
+        )
 
-        # Prepare Chunks Data
+        # 4.4 Save Chunks
         chunks_data = []
         for i, (text, embedding, metadata) in enumerate(zip(chunk_texts, embeddings, chunk_metadatas)):
             chunks_data.append({
@@ -81,5 +101,3 @@ class DataProcessingService:
         
         logger.info(f"Successfully processed and saved document: {file_path}")
         return db_document.id
-
-

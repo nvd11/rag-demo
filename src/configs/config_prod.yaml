@@ -13,6 +13,13 @@ gcp:
 deepseek:
   api-key: "DEEPSEEK_API_KEY"
   base-url: "https://api.deepseek.com"
+
+embedding:
+  provider: "google"
+  model: "models/text-embedding-004"
+
+retrieval:
+  similarity_threshold: 0.8
   
 database:
   host: "127.0.0.1" # Connect to the Cloud SQL Auth Proxy sidecar

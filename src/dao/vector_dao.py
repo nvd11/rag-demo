@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from src.models.document_model import Document, DocumentChunkGemini
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Sequence, Optional
 import uuid
 from loguru import logger
 
@@ -61,6 +61,43 @@ class VectorDAO:
     async def get_document_by_id(self, document_id: uuid.UUID) -> Document | None:
         result = await self.session.execute(select(Document).where(Document.id == document_id))
         return result.scalars().first()
+
+    async def search_similar_chunks(self, query_embedding: List[float], limit: int = 5, document_ids: Optional[List[uuid.UUID]] = None) -> Sequence[tuple[DocumentChunkGemini, float]]:
+        """
+        Searches for document chunks similar to the query embedding using Cosine Distance.
+        Returns a list of tuples (chunk, distance).
+        
+        SQL Equivalence:
+        SELECT *, embedding <=> '[...]' as distance
+        FROM document_chunks_gemini
+        [WHERE document_id IN (...)]
+        ORDER BY distance
+        LIMIT 5;
+        
+        Note: 
+        - The `<=>` operator represents Cosine Distance in pgvector.
+        - Lower distance means higher similarity.
+        - SQLAlchemy has no built-in support for vector operations (Cosine/Euclidean distance) as it only supports standard SQL.
+        - Vector Search is a special feature provided by the `pgvector` extension for PostgreSQL using non-standard operators (like `<=>`).
+        - We rely on the `pgvector-python` library to teach SQLAlchemy how to generate these special operators.
+        """
+        try:
+            # Calculate distance using pgvector operator
+            distance_col = DocumentChunkGemini.embedding.cosine_distance(query_embedding).label("distance")
+            
+            # Select both the chunk object and the distance value
+            stmt = select(DocumentChunkGemini, distance_col).order_by(distance_col).limit(limit)
+            
+            if document_ids:
+                stmt = stmt.where(DocumentChunkGemini.document_id.in_(document_ids))
+            
+            result = await self.session.execute(stmt)
+            # Result contains tuples of (DocumentChunkGemini, distance)
+            # We use result.all() instead of result.scalars().all() because we are returning multiple columns
+            return result.all()  # type: ignore
+        except Exception as e:
+            logger.error(f"Error searching similar chunks: {e}")
+            raise e
 
     async def commit(self):
         await self.session.commit()
